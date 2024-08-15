@@ -11,18 +11,28 @@ import { useChatStore } from './frbsLib/chatStore';
 
 function App() {
 
-  const { currentUser, isLoading, fetchUserInfo } = useUserStore()
-  const { chatId} = useChatStore()
+  const { currentUser, isLoading, fetchUserInfo, resetUserState } = useUserStore()
+  const { chatId,resetChatState} = useChatStore()
 
   useEffect(() => {
     const unSub = onAuthStateChanged(auth, (user) => {
       // console.log(user.uid);
-      fetchUserInfo(user?.uid)
+      // fetchUserInfo(user?.uid)
+      
+      if (user) {
+        // Fetch the new user's information
+        fetchUserInfo(user.uid);
+      } else {
+        // Reset states if no user is logged in (user logged out)
+        resetUserState();
+        resetChatState();
+      }
     });
+
     return () => {
       unSub();
     };
-  }, [fetchUserInfo])
+  }, [fetchUserInfo,resetUserState, resetChatState]);
 
   // console.log(currentUser);
 

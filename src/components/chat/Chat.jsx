@@ -20,14 +20,14 @@ import Upload from '../../frbsLib/Upload';
 function Chat() {
   const [chats, setChats] = useState();
   const [open, setOpen] = useState(false);
-  const [text, setText] = useState(" ");
+  const [text, setText] = useState("");
   const [img, setImg] = useState({
-    file:null,
+    file: null,
     url: "",
   });
 
   const { currentUser } = useUserStore();
-  const { chatId , user,isCurrentUserBlocked, isReceiverBlocked,} = useChatStore();
+  const { chatId, user, isCurrentUserBlocked, isReceiverBlocked, } = useChatStore();
 
   const endRef = useRef(null)
 
@@ -54,30 +54,30 @@ function Chat() {
   // console.log(text);
 
   const handleImg = e => {
-    if(e.target.files[0]){
-        setImg({
-          file:e.target.files[0],
-          url: URL.createObjectURL(e.target.files[0])
+    if (e.target.files[0]) {
+      setImg({
+        file: e.target.files[0],
+        url: URL.createObjectURL(e.target.files[0])
       })
     }
   }
 
-  const handleSend = async() =>{
-    if(text === "") return;
+  const handleSend = async () => {
+    if (text === "") return;
 
     let imgUrl = null
-    
+
     try {
 
-      if(img.file){
+      if (img.file) {
         imgUrl = await Upload(img.file)
       }
-      await updateDoc(doc(db,"chats", chatId),{
-        messages:arrayUnion({
+      await updateDoc(doc(db, "chats", chatId), {
+        messages: arrayUnion({
           senderId: currentUser.id,
           text,
           createAt: new Date(),
-          ...(imgUrl && {img: imgUrl}),
+          ...(imgUrl && { img: imgUrl }),
         }),
       });
 
@@ -85,37 +85,37 @@ function Chat() {
 
       userIDs.forEach(async (id) => {
 
-      const userChatsRef = doc(db, "userchats",id)
-      const userChatsSnapshot = await getDoc(userChatsRef)
+        const userChatsRef = doc(db, "userchats", id)
+        const userChatsSnapshot = await getDoc(userChatsRef)
 
-      if(userChatsSnapshot.exists()){
-        const userChatsData = userChatsSnapshot.data()
+        if (userChatsSnapshot.exists()) {
+          const userChatsData = userChatsSnapshot.data()
 
-        const chatIndex = userChatsData.chats.findIndex(c => c.chatId === chatId)
+          const chatIndex = userChatsData.chats.findIndex(c => c.chatId === chatId)
 
-        userChatsData.chats[chatIndex].lastMessage = text;
-        userChatsData.chats[chatIndex].isSeen = id === currentUser.id ? true : false;
-        userChatsData.chats[chatIndex].updatedAt = Date.now();
+          userChatsData.chats[chatIndex].lastMessage = text;
+          userChatsData.chats[chatIndex].isSeen = id === currentUser.id ? true : false;
+          userChatsData.chats[chatIndex].updatedAt = Date.now();
 
-        await updateDoc(userChatsRef, {
-          chats:userChatsData.chats,
-        })
-      }
-    });
+          await updateDoc(userChatsRef, {
+            chats: userChatsData.chats,
+          })
+        }
+      });
     } catch (error) {
       console.log(error);
     }
 
     setImg({
-      file:null,
-      url:""
+      file: null,
+      url: ""
     })
     setText("");
 
   }
 
   console.log("isCurrentUserBlocked:", isCurrentUserBlocked);
-console.log("isReceiverBlocked:", isReceiverBlocked);
+  console.log("isReceiverBlocked:", isReceiverBlocked);
 
   return (
     <div className='chat'>
@@ -138,11 +138,10 @@ console.log("isReceiverBlocked:", isReceiverBlocked);
       {/* //center */}
       <div className="center">
         {chats?.messages?.map(message => (
-          <div className={message.senderId === currentUser.id? "message own" : "message"} key={message?.createAt}>
+          <div className={message.senderId === currentUser.id ? "message own" : "message"} key={message?.createAt}>
             <div className="texts">
               {message.img && <img src={message.img} alt="" />}
               <p>{message.text} </p>
-              {/* <span>1 min ago</span> */}
             </div>
           </div>
         ))
@@ -161,23 +160,23 @@ console.log("isReceiverBlocked:", isReceiverBlocked);
       {/* bottom */}
       <div className="bottom">
         <div className="icons">
-        <label htmlFor="file">
-          <FaRegImage />
+          <label htmlFor="file">
+            <FaRegImage />
           </label>
-          <input type="file" id='file' style={{display:"none"}} onChange={handleImg}/>
+          <input type="file" id='file' style={{ display: "none" }} onChange={handleImg} />
           <FaCamera />
           <FaMicrophone />
         </div>
         <div className="msg">
           <input
             type="text"
+            placeholder={(isCurrentUserBlocked || isReceiverBlocked) ? "You can't send a message" : "type a message..."}
             value={text}
-            placeholder={(isCurrentUserBlocked || isReceiverBlocked )? "You can't send a message" : "type a message..."}
             onChange={(e) => setText(e.target.value)}
             disabled={isCurrentUserBlocked || isReceiverBlocked}
           />
           <button className='sendButton' onClick={handleSend}
-           disabled={isCurrentUserBlocked || isReceiverBlocked}
+            disabled={isCurrentUserBlocked || isReceiverBlocked}
           ><IoSend /></button>
         </div>
         <div className="emoji">

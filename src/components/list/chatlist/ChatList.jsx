@@ -84,7 +84,7 @@ function ChatList() {
 
       {/* show items for each chat */}
       {filteredChats.map((chat) => (
-        <div className='listItem'>
+        <div className='listItem' key={filteredChats.chatId}>
           <div
             className="item"
             key={chat.chatId}
@@ -102,7 +102,7 @@ function ChatList() {
           </div>
         </div>
       ))}
-
+ 
 
       {addMode && <AddUser />}
     </div>

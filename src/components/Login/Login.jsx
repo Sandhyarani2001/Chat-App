@@ -41,7 +41,17 @@ function Login() {
         const res = await createUserWithEmailAndPassword(auth,email,password)
         // console.log(res);
 
-        const imgUrl = await Upload(avatar.file)    //File usestate main hai upar
+        let imgUrl = avatar.url; // Initialize with the selected image URL
+
+        // If no image is uploaded, use the default avatar
+        if (!avatar.file) {
+          imgUrl = assets.avatar; // Set to your default avatar URL
+        } else {
+          imgUrl = await Upload(avatar.file); // Upload the selected image
+        }
+    
+
+        // const imgUrl = await Upload(avatar.file)    //File usestate main hai upar
 
         await setDoc(doc(db, "users", res.user.uid),{
           username,
@@ -78,6 +88,7 @@ function Login() {
 
       try{
         await signInWithEmailAndPassword(auth,email,password)
+        toast.success("Logedin successfull")
 
       }catch(error){
          console.log(error);
@@ -86,7 +97,7 @@ function Login() {
       finally{
         setLoading(false)
       }
-      toast.success("Logedin successfull")
+      // toast.success("Logedin successfull")
     }
   return (
     <div className='login'>
@@ -98,7 +109,9 @@ function Login() {
             <button disabled={loading}>{loading? "Loading" : "Sign In"}</button>
         </form>
       </div>
+      
       <div className="separator"></div>
+
       <div className="item">
         <h2>Create an Account</h2>
         <form onSubmit={handleRegister}>

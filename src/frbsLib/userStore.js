@@ -5,6 +5,7 @@ import { db } from './Firebase';
 export const useUserStore = create((set) => ({
     currentUser: null,
     isLoading: true,
+
     fetchUserInfo: async (uid) => {
         if (!uid) return set({ currentUser: null, isLoading: false });
          
@@ -23,6 +24,11 @@ export const useUserStore = create((set) => ({
             return set({ currentUser: null, isLoading: false })
         }
     },
+
+    resetUserState: () => set({
+        currentUser: null,
+        isLoading: false,
+    }),
 
 }));
 

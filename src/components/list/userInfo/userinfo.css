@@ -26,4 +26,16 @@
         .vdo{font-size: 18px;}
         .edit{font-size: 17px;}
     }
+    .logout{
+        padding: 10px;
+        background-color: #1a73e8;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+
+        &:hover{
+            background-color: rgb(20, 67, 220)
+        }
+    }
 }

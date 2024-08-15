@@ -31,138 +31,58 @@ function AddUser() {
     }
   }
 
-  // const handleAdd = async () => {
-
-  //   const chatRef = collection(db, "chats");
-  //   const userChatsRef = collection(db, "userchats");
-
-  //   try {
-  //     const newChatRef = doc(chatRef);
-  //     await setDoc(newChatRef, {
-  //       createdAt: serverTimestamp(),
-  //       message: [],
-  //     });
-
-  //     //update our user chat
-  //     await updateDoc(doc(userChatsRef, user.id),{
-
-  //       chats:arrayUnion({
-  //         chatId: newChatRef.id,
-  //         lastMessage: "",
-  //         receiverId: currentUser.id,
-  //         updatedAt: Date.now(),
-  //       }),
-  //     });
-  //     console.log("kokoko",user.id);
-  //     await updateDoc(doc(userChatsRef, currentUser.id),{
-  //       chats:arrayUnion({
-  //         chatId: newChatRef.id,
-  //         lastMessage: "",
-  //         receiverId: user.id,
-  //         updatedAt: Date.now(),
-  //       }),
-  //     });
-  //     // console.log(newChatRef.id);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
-
-
   const handleAdd = async () => {
 
     const chatRef = collection(db, "chats");
     const userChatsRef = collection(db, "userchats");
 
     try {
+       // Get current user's chat list
+    const currentUserChatsDoc = await getDoc(doc(userChatsRef, currentUser.id));
+    const currentUserChats = currentUserChatsDoc.data()?.chats || [];
+
+    // Check if the chat already exists
+    const chatExists = currentUserChats.some(
+      (chat) => chat.receiverId === user.id
+    );
+
+    if (chatExists) {
+      console.log("This user is already in the chat list.");
+      return;
+    }
+
+    // Proceed with adding the user to the chat list if not already added
       const newChatRef = doc(chatRef);
       await setDoc(newChatRef, {
         createdAt: serverTimestamp(),
-        message: [],
+        messages: [],
       });
 
-      const userChatDocRef = doc(userChatsRef, user.id);
-      const currentUserChatDocRef = doc(userChatsRef, currentUser.id);
-
-      // Check if user chat document exists, if not create it
-      const userChatDocSnap = await getDoc(userChatDocRef);
-      if (!userChatDocSnap.exists()) {
-        await setDoc(userChatDocRef, { chats: [] });
-      }
-
-      // Check if current user chat document exists, if not create it
-      const currentUserChatDocSnap = await getDoc(currentUserChatDocRef);
-      if (!currentUserChatDocSnap.exists()) {
-        await setDoc(currentUserChatDocRef, { chats: [] });
-      }
-
-      // Update our user chat
-      await updateDoc(userChatDocRef, {
-        chats: arrayUnion({
+      //update our user chat
+      await updateDoc(doc(userChatsRef, user.id),{
+         chats:arrayUnion({
           chatId: newChatRef.id,
           lastMessage: "",
           receiverId: currentUser.id,
           updatedAt: Date.now(),
         }),
       });
-
-      await updateDoc(currentUserChatDocRef, {
-        chats: arrayUnion({
+      console.log("kokoko",user.id);
+      await updateDoc(doc(userChatsRef, currentUser.id),{
+        chats:arrayUnion({
           chatId: newChatRef.id,
           lastMessage: "",
           receiverId: user.id,
           updatedAt: Date.now(),
         }),
       });
-
     } catch (error) {
       console.log(error);
     }
   }
 
-  // const handleAdd = async () => {
-  //   if (!user) {
-  //     console.log("User not found.");
-  //     return;
-  //   }
 
-  //   const chatRef = collection(db, "chats");
-  //   const userChatsRef = collection(db, "userchats");
-
-  //   try {
-  //     const newChatRef = doc(chatRef);
-  //     await setDoc(newChatRef, {
-  //       createdAt: serverTimestamp(),
-  //       message: [],
-  //     });
-  //     console.log("User chat document path:", doc(userChatsRef, currentUser.id).path);
-  //     console.log("User chat document path:", doc(userChatsRef, user.id).path);
-  //     const timestamp = new Date(); // Get current timestamp
-
-  //     await updateDoc(doc(userChatsRef, currentUser.id), {
-  //       chats: arrayUnion({
-  //         chatId: newChatRef.id,
-  //         lastMessage: "",
-  //         receiverId: user.id,
-  //         updatedAt: timestamp, // Use timestamp instead of serverTimestamp()
-  //       }),
-  //     });
-
-  //     await updateDoc(doc(userChatsRef, user.id), {
-  //       chats: arrayUnion({
-  //         chatId: newChatRef.id,
-  //         lastMessage: "",
-  //         receiverId: currentUser.id,
-  //         updatedAt: timestamp, // Use timestamp instead of serverTimestamp()
-  //       }),
-  //     });
-
-  //     console.log("Chat updated successfully.");
-  //   } catch (error) {
-  //     console.log("Error updating chat:", error);
-  //   }
-  // };
-
+  
 
 
 
